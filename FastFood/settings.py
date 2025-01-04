@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-s5(a&zb&^^82+sl_nr%y2h65m6w^bmev2i-22c8zl8jdkzy0po
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['fastfood-lq3i.onrender.com']
+ALLOWED_HOSTS = ['fastfood-lq3i.onrender.com', '127.0.0.1']
 
 
 # Application definition
@@ -148,7 +148,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
-    'EXCEPTION_HANDLER': 'main.exception_handler.custom_exception_handler',
+    # 'EXCEPTION_HANDLER': 'main.exception_handler.custom_exception_handler',
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',  
     ],

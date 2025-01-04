@@ -1,4 +1,4 @@
-from rest_framework import status # type: ignore
+from rest_framework import status, generics # type: ignore
 from rest_framework.response import Response # type: ignore
 from rest_framework.permissions import IsAuthenticated # type: ignore
 from rest_framework_simplejwt.views import TokenObtainPairView # type: ignore
@@ -9,6 +9,9 @@ from datetime import datetime
 from rest_framework_simplejwt.tokens import AccessToken # type: ignore
 from datetime import datetime
 from rest_framework.views import APIView # type: ignore
+from .decorators import GroupPermission
+from django.contrib.auth.models import User, Group
+from .custom_responses import CustomResponseMixin
 
 
 class LoginView(TokenObtainPairView):
@@ -87,3 +90,37 @@ class LogoutView(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
+
+class UserListCreateView(CustomResponseMixin, generics.ListCreateAPIView):
+    queryset = User.objects.order_by('-id')
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated, GroupPermission]
+    required_permissions = ['auth.view_user', 'auth.add_user']
+
+
+class UserUpdateDeleteRetriveView(CustomResponseMixin, generics.RetrieveUpdateDestroyAPIView):
+    queryset = User.objects.order_by('id')
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated, GroupPermission]
+    required_permissions = ['auth.view_user', 'auth.change_user', 'auth.delete_user']
+
+
+class GroupListCreateView(CustomResponseMixin, generics.ListCreateAPIView):
+    queryset = Group.objects.order_by('-id')
+    serializer_class = GroupSerializer
+    permission_classes = [IsAuthenticated,GroupPermission]
+    required_permissions = ['auth.view_group', 'auth.add_group']
+
+
+class GroupRetriveUpdateDeleteView(CustomResponseMixin, generics.RetrieveUpdateDestroyAPIView):
+    queryset = Group.objects.order_by('id')
+    serializer_class = GroupSerializer
+    permission_classes = [IsAuthenticated, GroupPermission]
+    required_permissions = ['auth.view_group', 'auth.change_group', 'auth.delete_group']
+
+
+class PermissionListView(generics.ListAPIView):
+    queryset = Permission.objects.order_by('-id')
+    serializer_class = PermissionSerializer
+    permission_classes = [IsAuthenticated, GroupPermission]
+    required_permissions = ['auth.view_permission']

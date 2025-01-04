@@ -157,4 +157,4 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
 }
 
-CSRF_TRUSTED_ORIGINS = ['https://water-api-fbhj.onrender.com']
+CSRF_TRUSTED_ORIGINS = ['https://fastfood-lq3i.onrender.com']

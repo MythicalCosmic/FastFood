@@ -12,6 +12,11 @@ urlpatterns = [
     path('api/roles/', GroupListCreateView.as_view(), name='roles-list-create'),
     path('api/role/<int:pk>/', GroupRetriveUpdateDeleteView.as_view(), name='role-update-delete-retrive'),
     #PERMISSION APIS
-    path('api/permissions/', PermissionListView.as_view(), name='permissions-list')
-
+    path('api/permissions/', PermissionListView.as_view(), name='permissions-list'),
+    #SIZE APIS
+    path('api/sizes/', SizeListCreateView.as_view(), name='size-list-create'),
+    path('api/size/<int:pk>/', SizeRetrieveUpdateDestroyView.as_view(), name='size-update-delete-retrive'),
+    #INGRIDIENT APIS
+    path('api/ingridients/', IngridientListCreateView.as_view(), name='ingridient-list-create'),
+    path('api/ingridient/<int:pk>/', IngridientRetrieveUpdateDestroyView.as_view(), name='ingridient-update-destroy-retrive'), 
 ]

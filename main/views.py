@@ -124,3 +124,35 @@ class PermissionListView(generics.ListAPIView):
     serializer_class = PermissionSerializer
     permission_classes = [IsAuthenticated, GroupPermission]
     required_permissions = ['auth.view_permission']
+
+
+
+class SizeListCreateView(CustomResponseMixin, generics.ListCreateAPIView):
+    queryset = Size.objects.order_by('-id')
+    serializer_class = SizeSerializer
+    permission_classes = [IsAuthenticated, GroupPermission]
+    required_permissions = ['add_size', 'view_size']
+    
+
+
+class SizeRetrieveUpdateDestroyView(CustomResponseMixin, generics.RetrieveUpdateDestroyAPIView):
+    queryset = Size.objects.order_by('-id')
+    serializer_class = SizeSerializer
+    permission_classes = [IsAuthenticated, GroupPermission]
+    required_permissions = ['change_size', 'view_size', 'delete_size']
+
+
+
+class IngridientListCreateView(CustomResponseMixin, generics.ListCreateAPIView):
+    queryset = Ingridients.objects.order_by('-id')
+    serializer_class =  IngridientSerializer
+    permission_classes = [IsAuthenticated, GroupPermission]
+    required_permissions = ['add_ingridient', 'view_ingridient']
+    
+
+
+class IngridientRetrieveUpdateDestroyView(CustomResponseMixin, generics.RetrieveUpdateDestroyAPIView):
+    queryset = Ingridients.objects.order_by('-id')
+    serializer_class = IngridientSerializer
+    permission_classes = [IsAuthenticated, GroupPermission]
+    required_permissions = ['change_ingridient', 'view_ingridient', 'delete_ingridient']

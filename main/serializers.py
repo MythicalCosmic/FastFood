@@ -97,3 +97,14 @@ class GroupSerializer(serializers.ModelSerializer):
         return instance
 
 
+class SizeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Size
+        fields = ['id', 'name', 'created_at', 'updated_at']
+
+
+class IngridientSerializer(serializers.ModelSerializer):
+    size_id = serializers.PrimaryKeyRelatedField(queryset=Size.objects.all())
+    class Meta:
+        model = Ingridients
+        fields = ['id',  'name', 'expiration_data', 'size_id', 'created_at', 'updated_at']

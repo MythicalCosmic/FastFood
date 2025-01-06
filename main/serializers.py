@@ -108,3 +108,10 @@ class IngridientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ingridients
         fields = ['id',  'name', 'expiration_data', 'size_id', 'created_at', 'updated_at']
+
+
+class IngridientInvoiceSerializer(serializers.ModelSerializer):
+    size_id = serializers.PrimaryKeyRelatedField(queryset=Size.objects.all())
+    class Meta:
+        model = Ingridients
+        fields = ['id',  'name', 'expiration_data', 'size_id', 'created_at', 'updated_at']

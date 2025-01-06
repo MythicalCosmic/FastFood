@@ -18,5 +18,8 @@ urlpatterns = [
     path('api/size/<int:pk>/', SizeRetrieveUpdateDestroyView.as_view(), name='size-update-delete-retrive'),
     #INGRIDIENT APIS
     path('api/ingridients/', IngridientListCreateView.as_view(), name='ingridient-list-create'),
-    path('api/ingridient/<int:pk>/', IngridientRetrieveUpdateDestroyView.as_view(), name='ingridient-update-destroy-retrive'), 
+    path('api/ingridient/<int:pk>/', IngridientRetrieveUpdateDestroyView.as_view(), name='ingridient-update-destroy-retrive'),
+    #INGRIDIENTINVOICE APIS
+    path('api/ingridient-invoices/', IngridienInvoicetListCreateView.as_view(), name='ingridient-list-create'),
+    path('api/ingridient-invoice/<int:pk>/', IngridientRetrieveUpdateDestroyView.as_view(), name='ingridient-update-destroy-retrive'),
 ]

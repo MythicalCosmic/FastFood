@@ -33,6 +33,7 @@ class IngridientInvoice(models.Model):
     _safedelete_policy = SOFT_DELETE
     name = models.CharField(max_length=50)
     status = models.CharField(max_length=10, choices=[('draft', 'Draft'), ('accepted', 'Accepted'), ('canceled', 'Canceled')], default='draft')
+    user = models.ForeignKey(User, on_delete=models.RESTRICT)
 
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -58,7 +59,7 @@ class Stock(models.Model):
     ingridient = models.ForeignKey(Ingridients, on_delete=models.RESTRICT)
     quantity = models.PositiveIntegerField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.RESTRICT)
+    user = models.ForeignKey(User, on_delete=models.RESTRICT)
 
 
 

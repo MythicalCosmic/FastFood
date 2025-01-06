@@ -156,3 +156,10 @@ class IngridientRetrieveUpdateDestroyView(CustomResponseMixin, generics.Retrieve
     serializer_class = IngridientSerializer
     permission_classes = [IsAuthenticated, GroupPermission]
     required_permissions = ['change_ingridient', 'view_ingridient', 'delete_ingridient']
+
+
+class IngridienInvoicetListCreateView(CustomResponseMixin, generics.ListCreateAPIView):
+    queryset = IngridientInvoice.objects.order_by('-id')
+    serializer_class =  IngridientInvoiceSerializer
+    permission_classes = [IsAuthenticated, GroupPermission]
+    required_permissions = ['view_ingridientinvoiceitem', 'add_ingridientinvoiceitem']

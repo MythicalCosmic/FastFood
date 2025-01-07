@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 
 class Size(models.Model):
     _safedelete_policy = SOFT_DELETE
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, unique=True)
 
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -33,7 +33,7 @@ class IngridientInvoice(models.Model):
     _safedelete_policy = SOFT_DELETE
     name = models.CharField(max_length=50)
     status = models.CharField(max_length=10, choices=[('draft', 'Draft'), ('accepted', 'Accepted'), ('canceled', 'Canceled')], default='draft')
-    user = models.ForeignKey(User, on_delete=models.RESTRICT)
+    user = models.ForeignKey(User, on_delete=models.RESTRICT, default=1)
 
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -80,10 +80,11 @@ class StockMovement(models.Model):
     type = models.CharField(max_length=10, choices=MOVEMENT_TYPES)
     quantity = models.PositiveIntegerField()
     description = models.TextField(blank=True)
+    user = models.ForeignKey(User, on_delete=models.RESTRICT, default=1)
 
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.type.capitalize()} - {self.variant} ({self.quantity})"
+        return f"{self.type.capitalize()} - {self.ingridient} ({self.quantity}). {self.description}"

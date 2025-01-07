@@ -1,3 +1,4 @@
+from django.forms import ValidationError
 from rest_framework import status, generics # type: ignore
 from rest_framework.response import Response # type: ignore
 from rest_framework.permissions import IsAuthenticated # type: ignore
@@ -158,8 +159,130 @@ class IngridientRetrieveUpdateDestroyView(CustomResponseMixin, generics.Retrieve
     required_permissions = ['change_ingridient', 'view_ingridient', 'delete_ingridient']
 
 
-class IngridienInvoicetListCreateView(CustomResponseMixin, generics.ListCreateAPIView):
+class IngridientInvoiceListCreateView(generics.ListCreateAPIView):
     queryset = IngridientInvoice.objects.order_by('-id')
-    serializer_class =  IngridientInvoiceSerializer
+    serializer_class = IngridientInvoiceSerializer
+    permission_classes = [IsAuthenticated]
+    required_permissions = ['add_ingridientinvoiceitem', 'view_ingridientinvoiceitem']
+
+    def create(self, request, *args, **kwargs):
+        items_data = request.data.pop('items', None)
+        if not items_data:
+            raise ValidationError({"items": "This field is required and must contain valid data."})
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        invoice = serializer.save()
+
+        for item in items_data:
+            item['igridient_invoice'] = invoice.id
+            item_serializer = IngridientInvoiceItemSerializer(data=item)
+            item_serializer.is_valid(raise_exception=True)
+            item_serializer.save()
+
+        return Response(serializer.data, status=201)
+    
+
+class IngridientInvoiceRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = IngridientInvoice.objects.order_by('-id')
+    serializer_class = IngridientInvoiceSerializer
+    permission_classes = [IsAuthenticated]
+    required_permissions = ['add_ingridientinvoice', 'view_ingridientinvoice']
+
+    def update(self, request, *args, **kwargs):
+        items_data = request.data.get('items', None)
+        status = request.data.get('status')
+
+        instance = self.get_object()
+        if instance.status != 'draft':
+            raise ValidationError({"status": "Only invoices with 'draft' status can be updated."})
+
+        if status not in ['accepted', 'canceled', 'draft']:
+            raise ValidationError({"status": "Invalid status. Allowed values are 'draft', 'accepted', or 'canceled'."})
+
+        if status == 'accepted' and not items_data:
+            raise ValidationError({"items": "This field is required when status is 'accepted'."})
+
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        invoice = serializer.save()
+
+
+        if items_data and status == 'accepted':
+            for item in items_data:
+                item['igridient_invoice'] = invoice.id
+                
+                existing_item = IngridientInvoiceItem.objects.filter(igridient_invoice=invoice.id, ingridient=item['ingridient']).first()
+                    # Create stock movement record
+                if existing_item:
+                    existing_item.quantity += item['quantity']
+                    existing_item.price = item['price']
+                    existing_item.save()
+                else:
+                    item_serializer = IngridientInvoiceItemSerializer(data=item)
+                    item_serializer.is_valid(raise_exception=True)
+                    item_serializer.save()
+
+                stock_instance = Stock.objects.filter(ingridient=item['ingridient'], user=request.user).first()
+
+                if stock_instance:
+                    stock_instance.quantity += item['quantity']  
+                    stock_instance.price = item['price']  
+                    stock_instance.save()
+
+                    stock_movement_data_update = {
+                        'ingridient': item['ingridient'],  
+                        'type': 'arrival',
+                        'quantity': item['quantity'],
+                        'user': request.user.id,
+                        'description': 'Stock Updated'
+                    }
+                    stock_movement_serializer = StockMovementSerializer(data=stock_movement_data_update, context={'request': request})
+                    stock_movement_serializer.is_valid(raise_exception=True)
+                    stock_movement_serializer.save()
+
+                else:
+                    stock_data = {
+                        'ingridient': item['ingridient'],
+                        'quantity': item['quantity'],
+                        'price': item['price'],
+                        'user': request.user.id,  
+                    }
+                    stock_serializer = StockSerializer(data=stock_data, context={'request': request})
+                    stock_serializer.is_valid(raise_exception=True)
+                    stock_serializer.save()
+
+                    stock_movement_data_new = {
+                        'ingridient': item['ingridient'], 
+                        'type': 'arrival',
+                        'user': request.user.id,
+                        'description': 'Stock Added'
+                    }
+                    stock_movement_serializer = StockMovementSerializer(data=stock_movement_data_new, context={'request': request})
+                    stock_movement_serializer.is_valid(raise_exception=True)
+                    stock_movement_serializer.save()
+
+            return Response(serializer.data)
+
+
+
+class IngridientInvoiceItemListView(CustomResponseMixin, generics.ListAPIView):
+    queryset = IngridientInvoiceItem.objects.order_by('-id')
+    serializer_class = IngridientInvoiceItemSerializer
     permission_classes = [IsAuthenticated, GroupPermission]
-    required_permissions = ['view_ingridientinvoiceitem', 'add_ingridientinvoiceitem']
+    required_permissions = ['view_ingridientinvoiceitem']
+
+
+
+class StockListView(CustomResponseMixin, generics.ListAPIView):
+    queryset = Stock.objects.order_by('-id')
+    serializer_class = StockSerializer
+    permission_classes = [IsAuthenticated, GroupPermission]
+    required_permissions = ['view_stock']
+
+
+class StockMovementListView(CustomResponseMixin, generics.ListAPIView):
+    queryset = StockMovement.objects.order_by('-id')
+    serializer_class = StockMovementSerializer
+    permission_classes = [IsAuthenticated, GroupPermission]
+    required_permissions = ['view_stockmovement']

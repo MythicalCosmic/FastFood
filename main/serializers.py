@@ -111,7 +111,53 @@ class IngridientSerializer(serializers.ModelSerializer):
 
 
 class IngridientInvoiceSerializer(serializers.ModelSerializer):
-    size_id = serializers.PrimaryKeyRelatedField(queryset=Size.objects.all())
+    items = serializers.SerializerMethodField()  
+
     class Meta:
-        model = Ingridients
-        fields = ['id',  'name', 'expiration_data', 'size_id', 'created_at', 'updated_at']
+        model = IngridientInvoice
+        fields = ['id', 'name', 'status', 'user', 'created_at', 'updated_at', 'items']
+        read_only_fields = ['user']
+
+    def get_items(self, obj):
+        items = IngridientInvoiceItem.objects.filter(igridient_invoice=obj)
+        return IngridientInvoiceItemSerializer(items, many=True).data
+
+    def create(self, validated_data):
+        request = self.context['request']
+        validated_data['user'] = request.user  
+        return super().create(validated_data)
+
+
+
+class IngridientInvoiceItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = IngridientInvoiceItem
+        fields = ['id', 'igridient_invoice', 'ingridient', 'quantity', 'price', 'created_at', 'updated_at']
+
+
+
+class StockSerializer(serializers.ModelSerializer):
+    total_value = serializers.SerializerMethodField()
+    class Meta:
+        model = Stock
+        fields = ['id', 'ingridient', 'quantity', 'price', 'user', 'total_value']
+
+    def create(self, validated_data):
+        request = self.context['request']
+        validated_data['user'] = request.user  
+        return super().create(validated_data)
+    
+    def get_total_value(self, obj):
+        return obj.quantity * obj.price
+
+
+class StockMovementSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StockMovement
+        fields = ['id', 'type', 'ingridient', 'quantity', 'description', 'user']
+
+    def create(self, validated_data):
+        request = self.context['request']
+        validated_data['user'] = request.user  
+        return super().create(validated_data)
+    

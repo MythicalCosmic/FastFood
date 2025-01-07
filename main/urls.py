@@ -20,6 +20,12 @@ urlpatterns = [
     path('api/ingridients/', IngridientListCreateView.as_view(), name='ingridient-list-create'),
     path('api/ingridient/<int:pk>/', IngridientRetrieveUpdateDestroyView.as_view(), name='ingridient-update-destroy-retrive'),
     #INGRIDIENTINVOICE APIS
-    path('api/ingridient-invoices/', IngridienInvoicetListCreateView.as_view(), name='ingridient-list-create'),
-    path('api/ingridient-invoice/<int:pk>/', IngridientRetrieveUpdateDestroyView.as_view(), name='ingridient-update-destroy-retrive'),
+    path('api/ingridient-invoices/', IngridientInvoiceListCreateView.as_view(), name='ingridient-list-create'),
+    path('api/ingridient-invoice/<int:pk>/', IngridientInvoiceRetrieveUpdateDeleteView.as_view(), name='ingridient-update-destroy-retrive'),
+    #INGRIDIENTINVOICE ITEM APIS
+    path('api/ingridient-invoice-items/', IngridientInvoiceItemListView.as_view(), name='ingridient-item-list'),
+    #STOCK APIS
+    path('api/stocks/', StockListView.as_view(), name='stock-list'),
+    #STOCK MOVEMENT APIS
+    path('api/stock-movement/', StockMovementListView.as_view(), name="stock-movement-list")
 ]
